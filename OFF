@@ -1,0 +1,31 @@
+package fr.lyceejulesfil.aqua;
+
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+
+public class OFF implements Runnable {
+
+
+    OFF()
+    {
+        run();
+    }
+    public void run() {
+
+        // TODO Auto-generated method stub
+        try {
+            String messageStr = "1";
+            int server_port = 3258;
+            DatagramSocket s = new DatagramSocket();
+            InetAddress local = InetAddress.getByName("192.168.0.255");
+            int msg_length = messageStr.length();
+            byte[] message = messageStr.getBytes();
+            DatagramPacket p = new DatagramPacket(message, msg_length, local,
+                    server_port);
+            s.send(p);
+        } catch (Exception e) {
+
+        }
+    }
+}
