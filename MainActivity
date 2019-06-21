@@ -1,0 +1,164 @@
+package fr.lyceejulesfil.aqua;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.text.Layout;
+import android.util.Log;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
+import android.widget.Switch;
+import android.widget.Toast;
+
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
+
+
+public class MainActivity extends AppCompatActivity {
+
+    @SuppressLint("NewApi")
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        new SocketTask().execute();
+
+
+        final Switch swt = (Switch) findViewById(R.id.switch1);
+        Boolean switchState = swt.isChecked();
+
+        swt.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // TODO Auto-generated method stub
+
+                    Thread t = new Thread(new OFF());
+                    t.start();
+                } else {
+                    // TODO Auto-generated method stub
+                    Thread t = new Thread(new ON());
+                    t.start();
+                }
+            }
+
+        });
+    }
+
+    private class SocketTask extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+                // Step 1 : crée un socket qui écoute le port 3258
+                DatagramSocket ds = null;
+                try {
+                    ds = new DatagramSocket(3258);
+                } catch (SocketException e) {
+                    e.printStackTrace();
+                }
+                byte[] receive = new byte[65535];
+
+                Log.d("test", "Test1");
+
+                DatagramPacket DpReceive = null;
+                while (true) {
+
+                    // Step 2 : crée un datagramPacket qui recois les données
+                    DpReceive = new DatagramPacket(receive, receive.length);
+
+                    Log.d("test", "Test2");
+
+                    // Step 3 : recois les données dans un byte buffer.
+                    try {
+                        ds.receive(DpReceive);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    System.out.println("TEST" + data(receive));
+                    Log.d("AsyncTask", String.valueOf(data(receive)));
+
+                    Log.d("test", "Test3");
+
+                    ///////////1ER ELECTROVANNE
+
+                  if (data(receive).toString().equals("111000000")) {
+                      LinearLayout elec1 = (LinearLayout) findViewById(R.id.elec1);
+                      elec1.setBackgroundColor(Color.GREEN);
+                      // Nettoie le buffer après chaque message.
+                      receive = new byte[65535];
+                  }
+
+                  if (data(receive).toString().equals("011000000")) {
+                        LinearLayout elec1 = (LinearLayout) findViewById(R.id.elec1);
+                        elec1.setBackgroundColor(Color.RED);
+                        // Clear the buffer after every message.
+                        receive = new byte[65535];
+                    }
+
+                    //////////2EME ELECTROVANNE
+
+                    if (data(receive).toString().equals("100110000")) {
+                        LinearLayout elec2 = (LinearLayout) findViewById(R.id.elec2);
+                        elec2.setBackgroundColor(Color.GREEN);
+                        // Clear the buffer after every message.
+                        receive = new byte[65535];
+                    }
+                    if (data(receive).toString().equals("000110000")) {
+                        LinearLayout elec2 = (LinearLayout) findViewById(R.id.elec2);
+                        elec2.setBackgroundColor(Color.RED);
+                        // Clear the buffer after every message.
+                        receive = new byte[65535];
+                    }
+
+                    ///////////3EME ELECTROVANNE
+
+                    if (data(receive).toString().equals("100001100")) {
+                        LinearLayout elec3 = (LinearLayout) findViewById(R.id.elec3);
+                        elec3.setBackgroundColor(Color.GREEN);
+                        // Clear the buffer after every message.
+                        receive = new byte[65535];
+                    }
+                    if (data(receive).toString().equals("000001100")) {
+                        LinearLayout elec3 = (LinearLayout) findViewById(R.id.elec3);
+                        elec3.setBackgroundColor(Color.RED);
+                        // Clear the buffer after every message.
+                        receive = new byte[65535];
+                    }
+
+                    //////////4EME ELECTROVANNE
+
+                    if (data(receive).toString().equals("100000011")) {
+                        LinearLayout elec4 = (LinearLayout) findViewById(R.id.elec4);
+                        elec4.setBackgroundColor(Color.GREEN);
+                        // Clear the buffer after every message.
+                        receive = new byte[65535];
+                    }
+                    if (data(receive).toString().equals("000000011")) {
+                        LinearLayout elec4 = (LinearLayout) findViewById(R.id.elec4);
+                        elec4.setBackgroundColor(Color.RED);
+                        // Clear the buffer after every message.
+                        receive = new byte[65535];
+                    }
+                }
+        }
+            public StringBuilder data ( byte[] a)
+            {
+                Log.d("test", "Test4");
+                if (a == null) return null;
+                StringBuilder ret = new StringBuilder();
+                int i = 0;
+                while (a[i] != 0) {
+                    ret.append((char) a[i]);
+                    i++;
+                }
+                return ret;
+            }
+        }
+}
